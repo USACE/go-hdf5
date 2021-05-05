@@ -10,11 +10,23 @@ package hdf5
 // static inline hid_t _go_hdf5_H5P_DEFAULT() { return H5P_DEFAULT; }
 // static inline hid_t _go_hdf5_H5P_DATASET_CREATE() { return H5P_DATASET_CREATE; }
 // static inline hid_t _go_hdf5_H5P_DATASET_ACCESS() { return H5P_DATASET_ACCESS; }
+// static inline hid_t _go_hdf5_H5P_FILE_ACCESS() { return H5P_FILE_ACCESS; }
+// static inline H5FD_ros3_fapl_t _go_hdf5_H5FD_ROS3(int version, bool auth,char *region, char *keyid, char *secretkey){
+//   H5FD_ros3_fapl_t ros3_fa = {
+//     version,
+//     auth,
+//   };
+//   strcpy(ros3_fa.aws_region,region);
+//   strcpy(ros3_fa.secret_id,keyid);
+//   strcpy(ros3_fa.secret_key,secretkey);
+//   return ros3_fa;
+//  }
 import "C"
 
 import (
 	"compress/zlib"
 	"fmt"
+	"unsafe"
 )
 
 const (
@@ -34,6 +46,7 @@ var (
 	P_DEFAULT        *PropList = newPropList(C._go_hdf5_H5P_DEFAULT())
 	P_DATASET_CREATE PropType  = PropType(C._go_hdf5_H5P_DATASET_CREATE()) // Properties for dataset creation
 	P_DATASET_ACCESS PropType  = PropType(C._go_hdf5_H5P_DATASET_ACCESS()) // Properties for dataset access
+	P_FILE_ACCESS    PropType  = PropType(C._go_hdf5_H5P_FILE_ACCESS())    // Properties for file access
 )
 
 func newPropList(id C.hid_t) *PropList {
@@ -127,4 +140,37 @@ func (p *PropList) Copy() (*PropList, error) {
 		return nil, err
 	}
 	return newPropList(hid), nil
+}
+
+//configuration for AWS prop list
+type H5FD_ROS3_FAPL struct {
+	Version               int32
+	Authenticate          bool
+	AWS_REGION            string
+	AWS_ACCESS_KEY_ID     string
+	AWS_SECRET_ACCESS_KEY string
+}
+
+//Sets the ROS3 props for a file handle
+func H5PsetFaplRos3d(pl *PropList, ros3 H5FD_ROS3_FAPL) error {
+
+	region := C.CString(ros3.AWS_REGION)
+	defer C.free(unsafe.Pointer(region))
+
+	accesskey := C.CString(ros3.AWS_ACCESS_KEY_ID)
+	defer C.free(unsafe.Pointer(accesskey))
+
+	secretkey := C.CString(ros3.AWS_SECRET_ACCESS_KEY)
+	defer C.free(unsafe.Pointer(secretkey))
+
+	ros3_fa := C._go_hdf5_H5FD_ROS3(
+		C.int(ros3.Version),
+		C.bool(ros3.Authenticate),
+		region,
+		accesskey,
+		secretkey,
+	)
+
+	C.H5Pset_fapl_ros3(C.hid_t(pl.id), &ros3_fa)
+	return nil
 }

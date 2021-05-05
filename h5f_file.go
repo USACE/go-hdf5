@@ -70,6 +70,19 @@ func OpenFile(name string, flags int) (*File, error) {
 	return newFile(hid), nil
 }
 
+// Open opens using a proplist and returns an an existing HDF5 file. The returned
+// file must be closed by the user when it is no longer needed.
+func OpenFileWithProp(name string, flags int, pl *PropList) (*File, error) {
+	c_name := C.CString(name)
+	defer C.free(unsafe.Pointer(c_name))
+
+	hid := C.H5Fopen(c_name, C.uint(flags), pl.id)
+	if err := checkID(hid); err != nil {
+		return nil, fmt.Errorf("error opening hdf5 file: %s", err)
+	}
+	return newFile(hid), nil
+}
+
 // ReOpen returns a new identifier for a previously-opened HDF5 file.
 // The returned file must be closed by the user when it is no longer needed.
 func (f *File) ReOpen() (*File, error) {
