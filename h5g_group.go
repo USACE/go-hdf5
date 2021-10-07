@@ -72,6 +72,10 @@ func (g *Group) OpenAttribute(name string) (*Attribute, error) {
 	return openAttribute(g.id, name)
 }
 
+func (g *Group) AttributeExists(name string) bool {
+	return attributeExists(g.id, name)
+}
+
 // Close closes the Group.
 func (g *Group) Close() error {
 	return g.closeWith(h5gclose)

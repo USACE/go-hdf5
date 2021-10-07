@@ -44,6 +44,13 @@ func openAttribute(id C.hid_t, name string) (*Attribute, error) {
 	return newAttribute(hid), nil
 }
 
+func attributeExists(id C.hid_t, attrname string) bool {
+	c_name := C.CString(attrname)
+	defer C.free(unsafe.Pointer(c_name))
+	e := C.H5Aexists(id, c_name)
+	return e > 0
+}
+
 // Access the type of an attribute
 func (s *Attribute) GetType() Identifier {
 	ftype := C.H5Aget_type(s.id)
@@ -93,8 +100,14 @@ func (s *Attribute) Read(data interface{}, dtype *Datatype) error {
 
 		dtype = dtAttr
 		dlen := dtype.Size()
-		cstr := (*C.char)(unsafe.Pointer(C.malloc(C.ulong(uint(unsafe.Sizeof(byte(0))) * (dlen + 1)))))
-		defer C.free(unsafe.Pointer(cstr))
+		//////////// replaced original line commented out below to add a memset
+		////////////   due to hdf5 allocations in memory that was free'ed but not cleared
+		memsize := C.ulong(uint(unsafe.Sizeof(byte(0))) * (dlen + 1))
+		cptr := unsafe.Pointer(C.malloc(memsize))
+		C.memset(cptr, 0, memsize)
+		cstr := (*C.char)(cptr)
+		////////////
+		//cstr := (*C.char)(unsafe.Pointer(C.malloc(C.ulong(uint(unsafe.Sizeof(byte(0))) * (dlen + 1)))))		defer C.free(unsafe.Pointer(cstr))
 		switch {
 		case C.H5Tis_variable_str(dtAttr.Identifier.id) != 0:
 			addr = unsafe.Pointer(&cstr)
