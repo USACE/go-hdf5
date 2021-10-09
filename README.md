@@ -1,5 +1,6 @@
 # hdf5
 
+[![Build status](https://github.com/gonum/hdf5/workflows/CI/badge.svg)](https://github.com/gonum/hdf5/actions)
 [![Build Status](https://secure.travis-ci.org/gonum/hdf5.png)](http://travis-ci.org/gonum/hdf5)
 [![GoDoc](https://godoc.org/gonum.org/v1/hdf5?status.svg)](https://godoc.org/gonum.org/v1/hdf5)
 
@@ -28,4 +29,4 @@ Naive ``cgo`` bindings for the ``C-API`` of ``hdf5``.
 
 ## License
 
-Please see github.com/gonum/license for general license information, contributors, authors, etc on the Gonum suite of packages.
+Please see github.com/gonum/gonum for general license information, contributors, authors, etc on the Gonum suite of packages.

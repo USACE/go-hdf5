@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    strategy:
+      matrix:
+        go-version: [1.16.x, 1.15.x]
+        platform: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    env:
+        GO111MODULE: on
+        GOPATH: ${{ github.workspace }}
+        GODEBUG: cgocheck=0
+    defaults:
+        run:
+            working-directory: ${{ env.GOPATH }}/src/gonum.org/v1/hdf5
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Cache-Go
+      uses: actions/cache@v1
+      with:
+        path: |
+            ~/go/pkg/mod              # Module download cache
+            ~/.cache/go-build         # Build cache (Linux)
+            ~/Library/Caches/go-build # Build cache (Mac)
+            '%LocalAppData%\go-build' # Build cache (Windows)
+
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+          path: ${{ env.GOPATH }}/src/gonum.org/v1/hdf5
+
+    - name: Install Windows packages
+      if: matrix.platform == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: mingw-w64-x86_64-toolchain mingw-w64-x86_64-hdf5
+        msystem: MINGW64
+        path-type: inherit
+
+    - name: Install Linux packages
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -qq pkg-config libhdf5-serial-dev
+
+    - name: Build Windows
+      if: matrix.platform == 'windows-latest'
+      run: |
+        go install ./...
+      shell: msys2 {0}
+
+    - name: Build Linux
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        go install ./...
+
+    - name: Test Windows
+      if: matrix.platform == 'windows-latest'
+      run: |
+        go test ./...
+      shell: msys2 {0}
+
+    - name: Test Linux
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        go test ./...
