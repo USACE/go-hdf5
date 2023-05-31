@@ -11,6 +11,7 @@ package hdf5
 import "C"
 
 import (
+	"errors"
 	"fmt"
 	"unsafe"
 )
@@ -228,11 +229,14 @@ func (g *CommonFG) Copy(srcpath string, destid int64, destpath string) int {
 	return int(errval)
 }
 
-func (g *CommonFG) CopyTo(name string, dest *File) int {
+func (g *CommonFG) CopyTo(dest *File, name string) error {
 	c_name := C.CString(name)
 	defer C.free(unsafe.Pointer(c_name))
 	hid_t := dest.CommonFG.Identifier.ID()
 	fileid := C.long(hid_t)
 	errval := C.H5Ocopy(g.id, c_name, fileid, c_name, C.H5P_DEFAULT, C.H5P_DEFAULT)
-	return int(errval)
+	if errval < 0 {
+		return errors.New(fmt.Sprintf("Errory copying %s to destination", name))
+	}
+	return nil
 }
