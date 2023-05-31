@@ -4,7 +4,7 @@
 
 package hdf5
 
-// #include "hdf5.h"
+// #include "/hdf/include/hdf5.h"
 // #include "hdf5_hl.h"
 // #include <stdlib.h>
 // #include <string.h>
@@ -214,4 +214,25 @@ func (g *CommonFG) LinkExists(name string) bool {
 	c_name := C.CString(name)
 	defer C.free(unsafe.Pointer(c_name))
 	return C.H5Lexists(g.id, c_name, 0) > 0
+}
+
+func (g *CommonFG) Copy(srcpath string, destid int64, destpath string) int {
+	c_srcpath := C.CString(srcpath)
+	defer C.free(unsafe.Pointer(c_srcpath))
+
+	c_destpath := C.CString(destpath)
+	defer C.free(unsafe.Pointer(c_destpath))
+
+	fileid := C.long(destid)
+	errval := C.H5Ocopy(g.id, c_srcpath, fileid, c_destpath, C.H5P_DEFAULT, C.H5P_DEFAULT)
+	return int(errval)
+}
+
+func (g *CommonFG) CopyTo(name string, dest *File) int {
+	c_name := C.CString(name)
+	defer C.free(unsafe.Pointer(c_name))
+	hid_t := dest.CommonFG.Identifier.ID()
+	fileid := C.long(hid_t)
+	errval := C.H5Ocopy(g.id, c_name, fileid, c_name, C.H5P_DEFAULT, C.H5P_DEFAULT)
+	return int(errval)
 }
