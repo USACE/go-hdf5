@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package hdf5 provides access to the HDF5 C library.
-package hdf5 // import "github.com/usace/hdf-go"
+package hdf5 // import "github.com/usace/go-hdf5"
 
 // #include "hdf5.h"
 import "C"

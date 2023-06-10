@@ -7,7 +7,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/usace/hdf-go"
+	"github.com/usace/go-hdf5"
 )
 
 const (

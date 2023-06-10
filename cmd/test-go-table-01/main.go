@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/usace/hdf-go"
+	"github.com/usace/go-hdf5"
 )
 
 const (

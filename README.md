@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/gonum/hdf5/workflows/CI/badge.svg)](https://github.com/gonum/hdf5/actions)
 [![Build Status](https://secure.travis-ci.org/gonum/hdf5.png)](http://travis-ci.org/gonum/hdf5)
-[![GoDoc](https://godoc.org/github.com/usace/hdf-go?status.svg)](https://godoc.org/github.com/usace/hdf-go)
+[![GoDoc](https://godoc.org/github.com/usace/go-hdf5?status.svg)](https://godoc.org/github.com/usace/go-hdf5)
 
 Naive ``cgo`` bindings for the ``C-API`` of ``hdf5``.
 

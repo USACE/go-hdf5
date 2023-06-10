@@ -16,7 +16,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	"github.com/usace/hdf-go/cmem"
+	"github.com/usace/go-hdf5/cmem"
 )
 
 // Table is an hdf5 packet-table.
