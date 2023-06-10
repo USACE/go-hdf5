@@ -1,3 +1,3 @@
-module gonum.org/v1/hdf5
+module github.com/usace/hdf-go
 
-go 1.13
+go 1.18

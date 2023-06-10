@@ -4,7 +4,7 @@
 
 package hdf5
 
-// #include "/hdf/include/hdf5.h"
+// #include "hdf5.h"
 // #include "hdf5_hl.h"
 // #include <stdlib.h>
 // #include <string.h>
