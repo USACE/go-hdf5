@@ -229,14 +229,33 @@ func (g *CommonFG) Copy(srcpath string, destid int64, destpath string) int {
 	return int(errval)
 }
 
-func (g *CommonFG) CopyTo(dest *File, name string) error {
-	c_name := C.CString(name)
-	defer C.free(unsafe.Pointer(c_name))
-	hid_t := dest.CommonFG.Identifier.ID()
-	fileid := C.long(hid_t)
-	errval := C.H5Ocopy(g.id, c_name, fileid, c_name, C.H5P_DEFAULT, C.H5P_DEFAULT)
+func (g *CommonFG) CopyTo(srcname string, dest *File, destname string) error {
+	//srcloc := `Results/Unsteady/Output/Output Blocks/Base Output/Unsteady Time Series/SA 2D Area Conn/Elk River at Sut SuttonDam/HW TW Segments`
+	//srcloc := `Results/Unsteady/Output/Output Blocks/Base Output/Unsteady Time Series/SA 2D Area Conn/Elk River at Sut SuttonDam/HW TW Segments`
+	//@TODO FIXME!!!!!
+	//srcloc := ""
+	//srcname = `Flow`
+	//grp, err := g.OpenGroup(srcloc)
+	//if err != nil {
+	//	return err
+	//}
+	destLocId := dest.CommonFG.Identifier.ID()
+	errval := H5OCopy(g.ID(), srcname, destLocId, destname, C.H5P_DEFAULT, C.H5P_DEFAULT)
 	if errval < 0 {
-		return errors.New(fmt.Sprintf("Errory copying %s to destination", name))
+		return errors.New(fmt.Sprintf("Errory copying %s to destination %s", srcname, destname))
 	}
 	return nil
+}
+
+func H5OCopy(src_location_id int64, srcname string, dest_location_id int64, destname string, ocpypl_id int64, cpl_id int64) int {
+	c_slid := C.long(src_location_id)
+	c_srcname := C.CString(srcname)
+	defer C.free(unsafe.Pointer(c_srcname))
+	c_dlid := C.long(dest_location_id)
+	c_destname := C.CString(destname)
+	defer C.free(unsafe.Pointer(c_destname))
+	c_ocpypl_id := C.long(ocpypl_id)
+	c_cpl_id := C.long(cpl_id)
+	errval := C.H5Ocopy(c_slid, c_srcname, c_dlid, c_destname, c_ocpypl_id, c_cpl_id)
+	return int(errval)
 }
